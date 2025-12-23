@@ -42,9 +42,7 @@ export const useAuthActions = () => {
 
   const signupJobSeekerMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post("/api/v1/auth/signup/job_seeker", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await api.post("/api/v1/auth/signup/job_seeker", formData);
       return data;
     },
     onSuccess: (_, variables) => {
@@ -59,9 +57,7 @@ export const useAuthActions = () => {
 
   const signupRecruiterMutation = useMutation({
     mutationFn: async (recruitData: FormData) => {
-      const { data } = await api.post("/api/v1/auth/signup/recruiter", recruitData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await api.post("/api/v1/auth/signup/recruiter", recruitData);
       return data;
     },
     onSuccess: (_, variables) => {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Navigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
@@ -8,6 +9,23 @@ import { User, Mail, Phone, Globe, MapPin, Bell, Camera, Lock, Eye, EyeOff, File
 import { useAuth } from "../../context/AuthContext";
 import { useMyProfile, useUpdateProfile, useDeleteAccount, useUploadAvatar, useUploadResume } from "../../hooks/useApi";
 import { AlertDialog } from "../../components/ui/AlertDialog";
+
+const HEADLINE_OPTIONS = [
+  "Software Engineer",
+  "Data Scientist",
+  "Product Manager",
+  "Designer",
+  "Marketing",
+  "Sales",
+  "Customer Support",
+  "Operations",
+  "Other"
+];
+
+const validateEthiopianPhone = (phone: string) => {
+  const regex = /^(?:\+251|0)[1-9]\d{8}$/;
+  return regex.test(phone.replace(/\s/g, ""));
+};
 
 export const SettingsPage = () => {
   const { user } = useAuth();
@@ -27,6 +45,10 @@ export const SettingsPage = () => {
     location: "",
     portfolio_url: "",
     resume_url: "",
+    github_url: "",
+    education: "",
+    skills: "",
+    years_experience: "",
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -57,11 +79,15 @@ export const SettingsPage = () => {
         location: data.location || "",
         portfolio_url: data.portfolio_url || "",
         resume_url: data.resume_url || "",
+        github_url: data.github_url || "",
+        education: data.education || "",
+        skills: data.skills || "",
+        years_experience: data.years_experience?.toString() || "",
       });
     }
   }, [profile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -72,6 +98,14 @@ export const SettingsPage = () => {
   };
 
   const handleSave = () => {
+    if (!formData.headline || !formData.skills || !formData.years_experience || !formData.github_url || !formData.phone_number || !formData.location) {
+        toast.error("Please fill in all required fields");
+        return;
+    }
+    if (!validateEthiopianPhone(formData.phone_number)) {
+        toast.error("Please enter a valid Ethiopian phone number");
+        return;
+    }
     updateProfile.mutate(formData);
   };
 
@@ -192,8 +226,16 @@ export const SettingsPage = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700">Professional Headline</label>
-                    <Input name="headline" value={formData.headline} onChange={handleChange} placeholder="e.g. Senior Product Designer" />
+                    <label className="text-sm font-medium text-slate-700">Professional Headline *</label>
+                    <select
+                        name="headline"
+                        className="w-full h-11 rounded-xl border border-slate-200 px-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                        value={formData.headline}
+                        onChange={handleChange}
+                    >
+                        <option value="">Select headline</option>
+                        {HEADLINE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
                   </div>
 
                   <div className="space-y-1.5">
@@ -206,6 +248,34 @@ export const SettingsPage = () => {
                       placeholder="Tell us about your experience..."
                       className="w-full rounded-xl border border-slate-200 p-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none bg-slate-50/30 transition-all focus:bg-white"
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Education</label>
+                      <Input name="education" value={formData.education} onChange={handleChange} placeholder="e.g. BSc in Computer Science" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Skills *</label>
+                      <Input name="skills" value={formData.skills} onChange={handleChange} placeholder="e.g. React, Python" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Years of Experience *</label>
+                      <Input 
+                        name="years_experience" 
+                        value={formData.years_experience} 
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d+$/.test(val)) {
+                                handleChange(e);
+                            }
+                        }} 
+                        placeholder="e.g. 5" 
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -274,16 +344,20 @@ export const SettingsPage = () => {
                         <Input value={user?.email || ""} disabled className="bg-slate-50 text-slate-500" icon={<Mail className="h-4 w-4" />} />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-700">Phone Number</label>
-                        <Input name="phone_number" value={formData.phone_number} onChange={handleChange} icon={<Phone className="h-4 w-4" />} placeholder="+1 (555) 000-0000" />
+                        <label className="text-sm font-medium text-slate-700">Phone Number *</label>
+                        <Input name="phone_number" value={formData.phone_number} onChange={handleChange} icon={<Phone className="h-4 w-4" />} placeholder="09... or +251 9..." />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-slate-700">Location</label>
-                        <Input name="location" value={formData.location} onChange={handleChange} icon={<MapPin className="h-4 w-4" />} placeholder="City, State" />
+                        <label className="text-sm font-medium text-slate-700">Location *</label>
+                        <Input name="location" value={formData.location} onChange={handleChange} icon={<MapPin className="h-4 w-4" />} placeholder="e.g. Addis Ababa" />
                     </div>
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-700">Portfolio URL</label>
                         <Input name="portfolio_url" value={formData.portfolio_url} onChange={handleChange} icon={<Globe className="h-4 w-4" />} placeholder="https://" />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700">GitHub URL *</label>
+                        <Input name="github_url" value={formData.github_url} onChange={handleChange} icon={<User className="h-4 w-4" />} placeholder="https://github.com/username" />
                     </div>
                      <div className="space-y-1.5 sm:col-span-2">
                         <label className="text-sm font-medium text-slate-700">Resume</label>

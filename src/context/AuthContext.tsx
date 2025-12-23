@@ -7,6 +7,8 @@ interface User {
   role: "job_seeker" | "recruiter";
   full_name?: string;
   company?: string;
+  is_verified?: boolean;
+  legal_document_url?: string;
 }
 
 interface AuthContextType {

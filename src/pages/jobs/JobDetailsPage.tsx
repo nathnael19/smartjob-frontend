@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { MapPin, Briefcase, Clock, DollarSign, Star, Bookmark, Share2, ShieldCheck, Info, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
+
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useJobDetails, useApplyToJob, useJobs, useMyApplications, useToggleSaveJob, useSavedJobs } from "../../hooks/useApi";
 import { toast } from "react-hot-toast";
@@ -94,9 +96,7 @@ export const JobDetailsPage = () => {
                          <div className="flex-1 space-y-3">
                             <div className="flex items-center gap-3 flex-wrap">
                                <h1 className="text-3xl font-extrabold text-slate-900">{job.title}</h1>
-                               <span className="flex items-center gap-1 bg-blue-50 text-blue-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                                  <ShieldCheck className="h-3.5 w-3.5" /> Verified
-                               </span>
+                               {job.is_verified && <VerifiedBadge showText />}
                             </div>
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-500">
                                <span className="text-slate-900 font-bold">{job.company_name || 'Company'}</span>

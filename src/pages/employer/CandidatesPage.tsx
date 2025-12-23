@@ -243,6 +243,25 @@ const CandidateCard = ({ application }: { application: any }) => {
                                         {application.cover_letter}
                                     </div>
                                 )}
+
+                                <div className="space-y-1.5 mt-4">
+                                    <label className="text-xs font-bold text-slate-400 uppercase">Recruiter Notes (Private)</label>
+                                    <textarea 
+                                        className="w-full rounded-lg border border-slate-200 p-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none bg-amber-50/30"
+                                        placeholder="Add private notes about this candidate..."
+                                        rows={3}
+                                        defaultValue={application.recruiter_notes || ""}
+                                        onBlur={(e) => {
+                                            if (e.target.value !== application.recruiter_notes) {
+                                                updateStatus.mutate({ 
+                                                    id: application.id, 
+                                                    status: application.status || 'applied',
+                                                    recruiter_notes: e.target.value 
+                                                });
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </CardContent>

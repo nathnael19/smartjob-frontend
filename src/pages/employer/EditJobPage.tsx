@@ -8,6 +8,11 @@ import { useJobDetails, useUpdateJob, useMyProfile } from "../../hooks/useApi"; 
 import { useAuth } from "../../context/AuthContext";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { toast } from "react-hot-toast";
+import { 
+  EMPLOYMENT_TYPES, 
+  EXPERIENCE_LEVELS, 
+  LOCATION_TYPES 
+} from "../../lib/constants";
 
 export const EditJobPage = () => {
   const { id } = useParams(); // Get job ID from URL
@@ -169,10 +174,9 @@ export const EditJobPage = () => {
                              value={formData.employment_type}
                              onChange={(e) => setFormData({ ...formData, employment_type: e.target.value })}
                           >
-                            <option>Full-time</option>
-                            <option>Part-time</option>
-                            <option>Contract</option>
-                            <option>Internship</option>
+                            {EMPLOYMENT_TYPES.map(type => (
+                              <option key={type}>{type}</option>
+                            ))}
                           </select>
                         </div>
                         <div className="space-y-1.5">
@@ -182,10 +186,9 @@ export const EditJobPage = () => {
                              value={formData.experience_level}
                              onChange={(e) => setFormData({ ...formData, experience_level: e.target.value })}
                            >
-                            <option>Entry Level</option>
-                            <option>Mid-Senior</option>
-                            <option>Director</option>
-                            <option>Executive</option>
+                            {EXPERIENCE_LEVELS.map(level => (
+                              <option key={level}>{level}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -194,7 +197,7 @@ export const EditJobPage = () => {
                         <div className="space-y-3">
                           <label className="text-sm font-medium text-slate-700">Location Type</label>
                           <div className="flex items-center gap-4">
-                            {["On-site", "Hybrid", "Remote"].map(type => (
+                            {LOCATION_TYPES.map(type => (
                               <label key={type} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                                 <input 
                                   type="radio" 

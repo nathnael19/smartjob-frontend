@@ -150,16 +150,17 @@ export const useMyApplications = () => {
 export const useUpdateApplicationStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status, ai_score, ai_reason }: { id: string; status: string; ai_score?: number; ai_reason?: string }) => {
-      const { data } = await api.put(`/api/v1/applications/${id}/status`, { status, ai_score, ai_reason });
+    mutationFn: async ({ id, status, ai_score, ai_reason, recruiter_notes }: { id: string; status: string; ai_score?: number; ai_reason?: string; recruiter_notes?: string }) => {
+      // Must include status even if only updating notes to avoid 422
+      const { data } = await api.put(`/api/v1/applications/${id}/status`, { status, ai_score, ai_reason, recruiter_notes });
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applications"] });
-      toast.success("Application status updated");
+      toast.success("Application updated");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Failed to update status");
+      toast.error(error.response?.data?.detail || "Failed to update application");
     }
   });
 };
@@ -190,17 +191,27 @@ export const useMyJobs = () => {
         // Returning all jobs but enriching with counts
         const myJobs = allJobs;
 
-        // Fetch application counts for each job in parallel
+        // Fetch application counts and status breakdowns for each job in parallel
         const jobsWithCounts = await Promise.all(myJobs.map(async (job: any) => {
           try {
-            const { data: applicants } = await api.get(`/api/v1/applications/job/${job.id}`);
+            const { data: applicantsData } = await api.get(`/api/v1/applications/job/${job.id}`);
+            const applicants = Array.isArray(applicantsData) ? applicantsData : (applicantsData?.data || []);
+            
+            // Calculate status breakdown
+            const status_breakdown = applicants.reduce((acc: any, app: any) => {
+              const status = app.status || 'applied';
+              acc[status] = (acc[status] || 0) + 1;
+              return acc;
+            }, {});
+
             return {
               ...job,
-              applicants_count: Array.isArray(applicants) ? applicants.length : (applicants?.data?.length || 0)
+              applicants_count: applicants.length,
+              status_breakdown
             };
           } catch (error) {
             console.error(`[useMyJobs] Error fetching applicants for job ${job.id}:`, error);
-            return { ...job, applicants_count: 0 };
+            return { ...job, applicants_count: 0, status_breakdown: {} };
           }
         }));
         
@@ -236,27 +247,6 @@ export const useUpdateProfile = () => {
   });
 };
 
-export const useUploadAvatar = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (formData: FormData) => {
-      // Ensure backend expects the key used in formData.
-      const { data } = await api.post("/api/v1/profile/me/avatar", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
-      toast.success("Profile picture updated");
-    },
-    onError: (error: any) => {
-      console.error("[useUploadAvatar] Error:", error);
-      toast.error(error.response?.data?.detail || "Failed to upload profile picture");
-    },
-  });
-};
-
 export const useDeleteAccount = () => {
   const queryClient = useQueryClient();
   const { logout } = useAuth();
@@ -276,13 +266,29 @@ export const useDeleteAccount = () => {
     },
   });
 };
+
+export const useUploadAvatar = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const { data } = await api.post("/api/v1/profile/me/avatar", formData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+      toast.success("Profile picture updated");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || "Failed to upload profile picture");
+    },
+  });
+};
+
 export const useUploadResume = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post("/api/v1/profile/me/resume", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await api.post("/api/v1/profile/me/resume", formData);
       return data;
     },
     onSuccess: () => {
@@ -291,6 +297,23 @@ export const useUploadResume = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.detail || "Failed to upload resume");
+    },
+  });
+};
+
+export const useUploadLegalDocument = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const { data } = await api.post("/api/v1/profile/me/legal-document", formData);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", "me"] });
+      toast.success("Legal document uploaded successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || "Failed to upload legal document");
     },
   });
 };

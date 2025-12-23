@@ -2,7 +2,7 @@ import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Send, Calendar, Bookmark, Eye, ArrowUpRight, Clock } from "lucide-react";
-import { useMyApplications, useMyProfile } from "../../hooks/useApi";
+import { useMyApplications, useMyProfile, useSavedJobs } from "../../hooks/useApi";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -10,11 +10,12 @@ export const JobSeekerDashboard = () => {
   const { user } = useAuth();
   const { data: apps, isLoading: isAppsLoading } = useMyApplications();
   const { data: profile, isLoading: isProfileLoading } = useMyProfile();
+  const { data: savedJobs } = useSavedJobs();
 
   const stats = [
     { label: "Applications Sent", value: apps?.length.toString() || "0", change: "Total", icon: Send, color: "text-blue-600", bg: "bg-blue-100" },
     { label: "Interviews", value: apps?.filter((a: any) => a.status === 'interview').length.toString() || "0", change: "Scheduled", icon: Calendar, color: "text-purple-600", bg: "bg-purple-100" },
-    { label: "Saved Jobs", value: "0", change: "Coming soon", icon: Bookmark, color: "text-orange-600", bg: "bg-orange-100" },
+    { label: "Saved Jobs", value: savedJobs?.length.toString() || "0", change: "Current", icon: Bookmark, color: "text-orange-600", bg: "bg-orange-100" },
     { label: "Profile Views", value: "0", change: "N/A", icon: Eye, color: "text-green-600", bg: "bg-green-100" },
   ];
 

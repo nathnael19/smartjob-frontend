@@ -102,6 +102,8 @@ export const SeekerJobDetailsPage = () => {
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-500">
                                <span className="text-slate-900 font-bold">{job.company_name || 'Company'}</span>
                                <span>•</span>
+                               <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-600 uppercase tracking-tight">{job.category || 'Professional Services'}</span>
+                               <span>•</span>
                                <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {job.location} ({job.location_type})</span>
                                <span>•</span>
                                <span className="text-green-600 font-bold">Posted {job.created_at ? new Date(job.created_at).toLocaleDateString() : 'Recently'}</span>

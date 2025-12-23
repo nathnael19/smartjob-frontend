@@ -2,6 +2,7 @@ import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Briefcase, Users, MessageSquare, Eye, ArrowUpRight } from "lucide-react";
+import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Legend, Label } from 'recharts';
 import { Link } from "react-router-dom";
 import { useMyJobs, useMyProfile } from "../../hooks/useApi";
@@ -12,10 +13,12 @@ export const EmployerDashboard = () => {
   const { data: myJobs, isLoading: isJobsLoading } = useMyJobs();
   const { data: profile, isLoading: isProfileLoading } = useMyProfile();
 
+  const totalInterviews = myJobs?.reduce((acc: number, j: any) => acc + (j.status_breakdown?.interview || 0), 0) || 0;
+
   const stats = [
     { label: "Active Jobs", value: myJobs?.filter((j: any) => j.status === 'open' || j.status === 'Active').length.toString() || "0", change: "Current", icon: Briefcase, color: "text-blue-600", bg: "bg-blue-100" },
     { label: "Total Applicants", value: myJobs?.reduce((acc: number, j: any) => acc + (j.applicants_count || 0), 0).toString() || "0", change: "Across all", icon: Users, color: "text-purple-600", bg: "bg-purple-100" },
-    { label: "Interviews", value: "0", change: "Coming soon", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-100" },
+    { label: "Interviews", value: totalInterviews.toString(), change: "Scheduled", icon: MessageSquare, color: "text-orange-600", bg: "bg-orange-100" },
     { label: "Profile Views", value: "0", change: "N/A", icon: Eye, color: "text-green-600", bg: "bg-green-100" },
   ];
 
@@ -49,7 +52,12 @@ export const EmployerDashboard = () => {
               )}
            </div>
            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Welcome back, {companyName}</h1>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold text-slate-900">
+                  Welcome back, {profile?.full_name || user?.email?.split('@')[0]}
+                </h1>
+                {user?.is_verified && <VerifiedBadge />}
+              </div>
               <p className="text-slate-500 mt-1">Here's what's happening with your job postings today.</p>
            </div>
         </header>

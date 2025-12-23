@@ -1,4 +1,6 @@
 import { Search, MapPin, Building2, Globe, Users, ArrowRight, Loader2 } from "lucide-react";
+import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
+
 import { useState, useMemo } from "react";
 import { useJobs } from "../../hooks/useApi";
 import { Button } from "../../components/ui/Button";
@@ -26,7 +28,8 @@ export const CompaniesPage = () => {
           activeJobs: 0,
           logo: companyName[0],
           description: `Leading innovator in ${job.title.split(' ')[0]} solutions.`,
-          website: `www.${companyName.toLowerCase().replace(/\s+/g, '')}.com`
+          website: `www.${companyName.toLowerCase().replace(/\s+/g, '')}.com`,
+          is_verified: job.is_verified
         });
       }
       companyMap.get(companyName).activeJobs += 1;
@@ -97,8 +100,9 @@ export const CompaniesPage = () => {
               </div>
 
               <div className="mb-4">
-                <h3 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 group-hover:text-primary transition-colors flex items-center gap-2">
                   {company.name}
+                  {company.is_verified && <VerifiedBadge />}
                 </h3>
                 <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
                   <Building2 className="h-4 w-4" />

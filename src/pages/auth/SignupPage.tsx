@@ -10,6 +10,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import api from "../../api/axios";
+import { HEADLINE_OPTIONS, COMPANY_SIZE_OPTIONS } from "../../lib/constants";
 
 export const SignupPage = () => {
   const [role, setRole] = useState<"job_seeker" | "recruiter">("job_seeker");
@@ -29,6 +30,7 @@ export const SignupPage = () => {
     email: "",
     password: "",
     confirm_password: "",
+    phone_number: "",
     // Employer
     company_name: "",
     industry: "",
@@ -40,11 +42,20 @@ export const SignupPage = () => {
     headline: "",
     bio: "",
     skills: "",
-    years_experience: 0,
-    phone_number: "",
+    years_experience: "",
     linked_in_url: "",
     portfolio_url: "",
+    github_url: "",
+    education: "",
+    founded_year: "",
+    twitter_url: "",
   });
+
+  const validateEthiopianPhone = (phone: string) => {
+    // Regex for: +251 9... or 09... (9 or 10 digits total depending on prefix)
+    const regex = /^(?:\+251|0)[1-9]\d{8}$/;
+    return regex.test(phone.replace(/\s/g, ""));
+  };
 
   const [files, setFiles] = useState<{
     resume?: File;
@@ -85,35 +96,57 @@ export const SignupPage = () => {
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.password !== formData.confirm_password) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
+    
     const data = new FormData();
     // Common fields
     data.append("email", formData.email);
     data.append("password", formData.password);
 
     if (role === "recruiter") {
+      if (!formData.industry || !formData.company_size || !formData.location || !formData.founded_year || !formData.phone_number) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+      if (!validateEthiopianPhone(formData.phone_number)) {
+        toast.error("Please enter a valid Ethiopian phone number");
+        return;
+      }
+
       data.append("company_name", formData.company_name);
       data.append("industry", formData.industry);
       data.append("company_size", formData.company_size);
       data.append("website_url", formData.website_url);
       data.append("location", formData.location);
       data.append("about_company", formData.about_company);
+      data.append("phone_number", formData.phone_number);
+      data.append("founded_year", formData.founded_year);
+      data.append("twitter_url", formData.twitter_url);
+      data.append("linkedin_url", formData.linked_in_url);
+      data.append("github_url", formData.github_url);
+      
       if (files.profile_picture) data.append("profile_picture", files.profile_picture);
       
       signupRecruiter.mutate(data);
     } else {
+      if (!formData.headline || !formData.skills || !formData.years_experience || !formData.github_url || !formData.phone_number || !formData.location) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
+      if (!validateEthiopianPhone(formData.phone_number)) {
+        toast.error("Please enter a valid Ethiopian phone number");
+        return;
+      }
+
       data.append("full_name", formData.full_name);
       data.append("headline", formData.headline);
       data.append("bio", formData.bio);
       data.append("skills", formData.skills);
-      data.append("years_experience", formData.years_experience.toString());
+      data.append("years_experience", formData.years_experience);
       data.append("phone_number", formData.phone_number);
       data.append("linked_in_url", formData.linked_in_url);
       data.append("portfolio_url", formData.portfolio_url);
+      data.append("github_url", formData.github_url);
+      data.append("education", formData.education);
       
       if (files.resume) data.append("resume", files.resume);
       if (files.profile_picture) data.append("profile_picture", files.profile_picture);
@@ -224,6 +257,10 @@ export const SignupPage = () => {
                     toast.error("Please fill in required fields");
                     return;
                   }
+                  if (formData.password !== formData.confirm_password) {
+                    toast.error("Passwords do not match");
+                    return;
+                  }
                   setStep(2);
                 }}
               >
@@ -238,12 +275,17 @@ export const SignupPage = () => {
             <h3 className="text-lg font-bold text-slate-900 border-b pb-2 mb-4">Profile Details</h3>
             {role === "job_seeker" ? (
               <>
-                <Input
-                  label="Headline"
-                  placeholder="e.g. Senior Software Engineer"
-                  value={formData.headline}
-                  onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
-                />
+                <div className="space-y-1.5 text-left">
+                  <label className="text-sm font-medium text-slate-700">Headline *</label>
+                  <select
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={formData.headline}
+                    onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
+                  >
+                    <option value="">Select a headline</option>
+                    {HEADLINE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </div>
                 <div className="space-y-1.5 text-left">
                   <label className="text-sm font-medium text-slate-700">Bio</label>
                   <textarea 
@@ -254,31 +296,59 @@ export const SignupPage = () => {
                   />
                 </div>
                 <Input
-                  label="Skills"
+                  label="Skills *"
                   placeholder="e.g. React, Node.js, Python"
                   value={formData.skills}
                   onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
                 />
                 <Input
-                  label="Years of Experience"
-                  type="number"
+                  label="Years of Experience *"
+                  placeholder="e.g. 5"
                   value={formData.years_experience}
-                  onChange={(e) => setFormData({ ...formData, years_experience: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d+$/.test(val)) {
+                      setFormData({ ...formData, years_experience: val });
+                    }
+                  }}
+                />
+                <Input
+                  label="Education"
+                  placeholder="e.g. BSc in Computer Science"
+                  value={formData.education}
+                  onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                />
+                <Input
+                  label="GitHub URL *"
+                  placeholder="https://github.com/username"
+                  value={formData.github_url}
+                  onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
                 />
               </>
             ) : (
               <>
                 <Input
-                  label="Industry"
+                  label="Industry *"
                   placeholder="e.g. Technology"
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                 />
+                <div className="space-y-1.5 text-left">
+                  <label className="text-sm font-medium text-slate-700">Company Size *</label>
+                  <select
+                    className="w-full h-11 rounded-xl border border-slate-200 bg-white px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    value={formData.company_size}
+                    onChange={(e) => setFormData({ ...formData, company_size: e.target.value })}
+                  >
+                    <option value="">Select company size</option>
+                    {COMPANY_SIZE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </div>
                 <Input
-                  label="Company Size"
-                  placeholder="e.g. 50-100"
-                  value={formData.company_size}
-                  onChange={(e) => setFormData({ ...formData, company_size: e.target.value })}
+                  label="Phone Number *"
+                  placeholder="09... or +251 9..."
+                  value={formData.phone_number}
+                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                 />
                 <Input
                   label="Website URL"
@@ -287,16 +357,64 @@ export const SignupPage = () => {
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                 />
                 <Input
-                  label="Location"
-                  placeholder="e.g. New York, NY"
+                  label="Location *"
+                  placeholder="e.g. Addis Ababa"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                />
+                <Input
+                  label="Founded Year *"
+                  placeholder="e.g. 2010"
+                  value={formData.founded_year}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d{0,4}$/.test(val)) {
+                      setFormData({ ...formData, founded_year: val });
+                    }
+                  }}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Twitter URL"
+                    placeholder="https://twitter.com/handle"
+                    value={formData.twitter_url}
+                    onChange={(e) => setFormData({ ...formData, twitter_url: e.target.value })}
+                  />
+                  <Input
+                    label="LinkedIn URL"
+                    placeholder="https://linkedin.com/company/abc"
+                    value={formData.linked_in_url}
+                    onChange={(e) => setFormData({ ...formData, linked_in_url: e.target.value })}
+                  />
+                </div>
+                <Input
+                  label="GitHub URL"
+                  placeholder="https://github.com/abc"
+                  value={formData.github_url}
+                  onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
                 />
               </>
             )}
             <div className="grid grid-cols-2 gap-4 pt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-              <Button onClick={() => setStep(3)}>Next: Contact & Files</Button>
+              <Button onClick={() => {
+                if (role === "job_seeker") {
+                  if (!formData.headline || !formData.skills || !formData.years_experience || !formData.github_url) {
+                    toast.error("Please fill in all required fields");
+                    return;
+                  }
+                } else {
+                  if (!formData.industry || !formData.company_size || !formData.phone_number || !formData.location || !formData.founded_year) {
+                    toast.error("Please fill in all required fields");
+                    return;
+                  }
+                  if (!validateEthiopianPhone(formData.phone_number)) {
+                    toast.error("Please enter a valid Ethiopian phone number");
+                    return;
+                  }
+                }
+                setStep(3);
+              }}>Next: Files & Finalize</Button>
             </div>
           </div>
         )}
@@ -307,10 +425,16 @@ export const SignupPage = () => {
             {role === "job_seeker" ? (
               <>
                 <Input
-                  label="Phone Number"
-                  placeholder="+1 (555) 000-0000"
+                  label="Phone Number *"
+                  placeholder="09... or +251 9..."
                   value={formData.phone_number}
                   onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                />
+                <Input
+                  label="Location *"
+                  placeholder="e.g. Addis Ababa"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 />
                 <Input
                   label="LinkedIn URL"

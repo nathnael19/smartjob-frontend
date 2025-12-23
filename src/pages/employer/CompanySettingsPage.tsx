@@ -3,12 +3,31 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Briefcase, Globe, MapPin, Save, ArrowLeft, Camera, Trash2, Key, Phone } from "lucide-react";
+import { toast } from "react-hot-toast";
 import { useMyProfile, useUpdateProfile, useUploadAvatar, useDeleteAccount } from "../../hooks/useApi";
 import { useAuth } from "../../context/AuthContext";
 import { useAuthActions } from "../../hooks/useAuthActions";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { AlertDialog } from "../../components/ui/AlertDialog";
+import { VerificationModal } from "../../components/modals/VerificationModal";
+import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
+import { ShieldCheck } from "lucide-react";
+
+
+const COMPANY_SIZE_OPTIONS = [
+  "1-10",
+  "11-50",
+  "51-200",
+  "201-500",
+  "501-1000",
+  "1000+"
+];
+
+const validateEthiopianPhone = (phone: string) => {
+  const regex = /^(?:\+251|0)[1-9]\d{8}$/;
+  return regex.test(phone.replace(/\s/g, ""));
+};
 
 export const CompanySettingsPage = () => {
   const { user } = useAuth();
@@ -27,10 +46,15 @@ export const CompanySettingsPage = () => {
     location: "",
     industry: "",
     company_size: "",
-    phone_number: ""
+    phone_number: "",
+    founded_year: "",
+    twitter_url: "",
+    linkedin_url: "",
+    github_url: ""
   });
   
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +75,11 @@ export const CompanySettingsPage = () => {
         location: data.location || "",
         industry: data.industry || "",
         company_size: data.company_size || "",
-        phone_number: data.phone_number || ""
+        phone_number: data.phone_number || "",
+        founded_year: data.founded_year || "",
+        twitter_url: data.twitter_url || "",
+        linkedin_url: data.linkedin_url || "",
+        github_url: data.github_url || ""
       });
     }
   }, [profile, user]);
@@ -71,6 +99,14 @@ export const CompanySettingsPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!formData.company || !formData.industry || !formData.company_size || !formData.location || !formData.founded_year || !formData.phone_number) {
+        toast.error("Please fill in all required fields");
+        return;
+    }
+    if (!validateEthiopianPhone(formData.phone_number)) {
+        toast.error("Please enter a valid Ethiopian phone number");
+        return;
+    }
     await updateProfile.mutateAsync(formData);
   };
 
@@ -117,6 +153,51 @@ export const CompanySettingsPage = () => {
             <h1 className="text-3xl font-bold text-slate-900">Company Settings</h1>
             <p className="text-slate-500">Update your company's public information and details.</p>
           </header>
+
+          {/* Verification Status Card */}
+          <Card className="mb-8 overflow-hidden border-blue-100 bg-blue-50/30">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-200">
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-slate-900">Verification Status</h3>
+                      {user?.is_verified ? (
+                        <VerifiedBadge showText />
+                      ) : (
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                          user?.legal_document_url 
+                            ? "bg-amber-100 text-amber-700" 
+                            : "bg-slate-200 text-slate-600"
+                        }`}>
+                          {user?.legal_document_url ? "Pending Approval" : "Required"}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-500 max-w-md">
+                      {user?.is_verified 
+                        ? "Your company is verified. You have full access to premium recruiting features."
+                        : user?.legal_document_url
+                        ? "Documents under review. We'll notify you once the process is complete."
+                        : "Verify your legal identity to build trust with candidates and unlock job posting."
+                      }
+                    </p>
+                  </div>
+                </div>
+                {!user?.is_verified && !user?.legal_document_url && (
+                  <Button 
+                    className="font-bold whitespace-nowrap" 
+                    onClick={() => setIsVerificationOpen(true)}
+                  >
+                    Start Verification
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardContent className="p-8 space-y-8">
@@ -184,10 +265,10 @@ export const CompanySettingsPage = () => {
                     onChange={handleInputChange}
                   />
                   <Input 
-                    label="Phone" 
+                    label="Phone *" 
                     name="phone_number"
                     icon={<Phone className="h-4 w-4" />} 
-                    placeholder="+1 (555) 000-0000" 
+                    placeholder="09... or +251 9..." 
                     value={formData.phone_number}
                     onChange={handleInputChange}
                   />
@@ -195,10 +276,10 @@ export const CompanySettingsPage = () => {
                 
                 <div className="grid grid-cols-1 gap-6">
                     <Input 
-                        label="Headquarters" 
+                        label="Headquarters *" 
                         name="location"
                         icon={<MapPin className="h-4 w-4" />} 
-                        placeholder="City, State" 
+                        placeholder="e.g. Addis Ababa" 
                         value={formData.location}
                         onChange={handleInputChange}
                     />
@@ -206,18 +287,65 @@ export const CompanySettingsPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Input 
-                        label="Industry" 
+                        label="Industry *" 
                         name="industry"
                         placeholder="e.g. Technology" 
                         value={formData.industry}
                         onChange={handleInputChange}
                     />  
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700">Company Size *</label>
+                        <select
+                            name="company_size"
+                            className="w-full h-11 rounded-lg border border-slate-200 px-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            value={formData.company_size}
+                            onChange={handleInputChange}
+                        >
+                            <option value="">Select size</option>
+                            {COMPANY_SIZE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Input 
-                        label="Company Size" 
-                        name="company_size"
-                        placeholder="e.g. 50-100" 
-                        value={formData.company_size}
-                        onChange={handleInputChange}
+                        label="Founded Year *" 
+                        name="founded_year"
+                        placeholder="e.g. 2010" 
+                        value={formData.founded_year} 
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d{0,4}$/.test(val)) {
+                                handleInputChange(e);
+                            }
+                        }} 
+                    />
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <h4 className="text-sm font-bold text-slate-900">Social Profiles</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <Input 
+                            label="Twitter URL" 
+                            name="twitter_url"
+                            placeholder="https://twitter.com/company" 
+                            value={formData.twitter_url} 
+                            onChange={handleInputChange} 
+                        />
+                        <Input 
+                            label="LinkedIn URL" 
+                            name="linkedin_url"
+                            placeholder="https://linkedin.com/company/abc" 
+                            value={formData.linkedin_url} 
+                            onChange={handleInputChange} 
+                        />
+                    </div>
+                    <Input 
+                        label="GitHub URL" 
+                        name="github_url"
+                        placeholder="https://github.com/company" 
+                        value={formData.github_url} 
+                        onChange={handleInputChange} 
                     />
                 </div>
               </div>
@@ -270,6 +398,11 @@ export const CompanySettingsPage = () => {
             />
           </div>
       </AlertDialog>
+
+      <VerificationModal 
+        isOpen={isVerificationOpen}
+        onClose={() => setIsVerificationOpen(false)}
+      />
     </div>
   );
 };

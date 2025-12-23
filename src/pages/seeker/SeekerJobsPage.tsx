@@ -4,9 +4,11 @@ import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Search, MapPin, Star, Loader2, Filter } from "lucide-react";
+import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
 import { useJobs, useMyProfile } from "../../hooks/useApi";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { EMPLOYMENT_TYPES, EXPERIENCE_LEVELS } from "../../lib/constants";
 
 export const SeekerJobsPage = () => {
   const { user } = useAuth();
@@ -34,8 +36,8 @@ export const SeekerJobsPage = () => {
   const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
 
   // Filter Options
-  const jobTypes = ["Full-time", "Part-time", "Contract", "Freelance", "Internship"];
-  const experienceLevels = ["Entry Level", "Mid Level", "Senior Level", "Director", "Executive"];
+  const jobTypes = EMPLOYMENT_TYPES;
+  const experienceLevels = EXPERIENCE_LEVELS;
 
   const toggleFilter = (list: string[], setList: (l: string[]) => void, item: string) => {
     if (list.includes(item)) {
@@ -91,7 +93,8 @@ export const SeekerJobsPage = () => {
       salary: `$${(job.salary_min || 0)/1000}k - ${(job.salary_max || 0)/1000}k`,
       posted: new Date(job.created_at).toLocaleDateString(),
       logo: (job.company_name || "C")[0],
-      color: "bg-primary/10 text-primary"
+      color: "bg-primary/10 text-primary",
+      is_verified: job.is_verified // Assuming backend returns this
     }));
   }, [jobs, searchTerm, locationTerm, selectedJobTypes, selectedExperience, isRemote, datePosted]);
 
@@ -284,7 +287,10 @@ export const SeekerJobsPage = () => {
                                     <div className="flex items-start justify-between mb-2">
                                         <div>
                                             <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">{job.title}</h3>
-                                            <p className="text-slate-500 font-medium">{job.company}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-slate-500 font-medium">{job.company}</p>
+                                                {job.is_verified && <VerifiedBadge />}
+                                            </div>
                                         </div>
                                         <button className="text-slate-300 hover:text-primary transition-colors">
                                            <Star className="h-5 w-5" />

@@ -1,14 +1,22 @@
+import { MapPin, FileText, DollarSign, List, Lightbulb, Info, X, Lock } from "lucide-react";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card, CardContent } from "../../components/ui/Card";
-import { MapPin, FileText, DollarSign, List, Lightbulb, Info, X } from "lucide-react";
 import { useState } from "react";
 
 import { useCreateJob, useMyProfile } from "../../hooks/useApi";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { 
+  EMPLOYMENT_TYPES, 
+  EXPERIENCE_LEVELS, 
+  JOB_CATEGORIES, 
+  LOCATION_TYPES, 
+  JOB_PERKS 
+} from "../../lib/constants";
 
 export const PostJobPage = () => {
   const { user } = useAuth();
@@ -25,6 +33,7 @@ export const PostJobPage = () => {
     salary_min: 0,
     salary_max: 0,
     deadline: "",
+    category: "",
   });
 
   const createJob = useCreateJob();
@@ -40,6 +49,11 @@ export const PostJobPage = () => {
   const removeSkill = (s: string) => setSkills(skills.filter(skill => skill !== s));
 
   const handlePublish = () => {
+    if (!user?.is_verified) {
+      toast.error("You must verify your company before posting jobs.");
+      return;
+    }
+
     // Validation
     if (!formData.title.trim()) {
       toast.error("Please enter a job title");
@@ -53,18 +67,25 @@ export const PostJobPage = () => {
       toast.error("Please enter a location");
       return;
     }
+    if (!formData.category) {
+      toast.error("Please select a category");
+      return;
+    }
 
     // Transform data to match backend schema
     const jobPayload = {
       title: formData.title,
-      desc: formData.description, // Backend uses 'desc' not 'description'
+      desc: formData.description,
       location: formData.location,
+      location_type: formData.location_type,
       is_remote: formData.location_type === "Remote",
-      job_type: formData.employment_type, // Backend uses 'job_type'
+      job_type: formData.employment_type,
+      experience_level: formData.experience_level,
+      category: formData.category,
       salary_min: formData.salary_min || null,
       salary_max: formData.salary_max || null,
       currency: "USD",
-      requirements: skills, // Backend uses 'requirements' not 'skills'
+      requirements: skills,
       deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
       status: "open",
     };
@@ -124,29 +145,50 @@ export const PostJobPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-slate-700">Employment Type *</label>
-                      <select className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none">
-                        <option>Select type</option>
-                        <option>Full-time</option>
-                        <option>Part-time</option>
-                        <option>Contract</option>
+                      <select 
+                        value={formData.employment_type}
+                        onChange={(e) => setFormData({ ...formData, employment_type: e.target.value })}
+                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                      >
+                        <option value="">Select type</option>
+                        {EMPLOYMENT_TYPES.map(type => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-slate-700">Experience Level</label>
-                      <select className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none">
-                        <option>Select level</option>
-                        <option>Entry Level</option>
-                        <option>Mid-Senior</option>
-                        <option>Director</option>
+                      <label className="text-sm font-medium text-slate-700">Experience Level *</label>
+                      <select 
+                        value={formData.experience_level}
+                        onChange={(e) => setFormData({ ...formData, experience_level: e.target.value })}
+                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                      >
+                        <option value="">Select level</option>
+                        {EXPERIENCE_LEVELS.map(level => (
+                          <option key={level} value={level}>{level}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700">Category *</label>
+                      <select 
+                        value={formData.category} // Assuming category is added to state
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                      >
+                        <option value="">Select category</option>
+                        {JOB_CATEGORIES.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="space-y-3">
                       <label className="text-sm font-medium text-slate-700">Location Type *</label>
                       <div className="flex items-center gap-6">
-                        {["On-site", "Hybrid", "Remote"].map(type => (
+                        {LOCATION_TYPES.map(type => (
                           <label key={type} className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                             <input 
                               type="radio" 
@@ -161,6 +203,9 @@ export const PostJobPage = () => {
                         ))}
                       </div>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input 
                       label="Office Location" 
                       icon={<MapPin className="h-4 w-4" />} 
@@ -259,7 +304,7 @@ export const PostJobPage = () => {
                   <div className="space-y-4">
                     <label className="text-sm font-medium text-slate-700">Perks & Benefits</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {["Health Insurance", "Paid Time Off", "Dental Insurance", "Remote Work Options", "401(k) Matching", "Learning Budget"].map(perk => (
+                      {JOB_PERKS.map(perk => (
                         <label key={perk} className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-slate-50/30 cursor-pointer hover:bg-slate-100 transition-colors">
                            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" />
                            <span className="text-sm text-slate-700">{perk}</span>
@@ -273,7 +318,19 @@ export const PostJobPage = () => {
 
             {/* Sticky Sidebar */}
             <div className="space-y-6">
-              <Card className="sticky top-24">
+              <Card className="sticky top-24 overflow-hidden">
+                {!user?.is_verified && (
+                    <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center">
+                        <div className="h-14 w-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4">
+                            <Lock className="h-7 w-7" />
+                        </div>
+                        <h4 className="font-bold text-slate-900 mb-2">Publishing Locked</h4>
+                        <p className="text-xs text-slate-500 mb-6">Verify your company identity to start posting jobs.</p>
+                        <Link to="/dashboard/employer/settings" className="w-full">
+                            <Button className="w-full font-bold">Verify Now</Button>
+                        </Link>
+                    </div>
+                )}
                 <CardContent className="p-6 space-y-6">
                   <h3 className="font-bold text-xl text-slate-900">Publishing</h3>
                   <div className="space-y-3">
@@ -282,10 +339,11 @@ export const PostJobPage = () => {
                       size="lg"
                       onClick={handlePublish}
                       isLoading={createJob.isPending}
+                      disabled={!user?.is_verified}
                     >
                       Publish Job Now
                     </Button>
-                    <Button variant="outline" className="w-full font-bold" size="lg">Save as Draft</Button>
+                    <Button variant="outline" className="w-full font-bold" size="lg" disabled={!user?.is_verified}>Save as Draft</Button>
                     <button className="w-full text-sm font-bold text-slate-400 py-2 hover:text-slate-600">Cancel</button>
                   </div>
                   
