@@ -23,12 +23,12 @@ const HEADLINE_OPTIONS = [
 ];
 
 const validateEthiopianPhone = (phone: string) => {
-  const regex = /^(?:\+251|0)[1-9]\d{8}$/;
-  return regex.test(phone.replace(/\s/g, ""));
+  const regex = /^\d{10}$/;
+  return regex.test(phone);
 };
 
 export const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { data: profile, isLoading } = useMyProfile();
   const updateProfile = useUpdateProfile();
   const deleteAccount = useDeleteAccount();
@@ -98,15 +98,22 @@ export const SettingsPage = () => {
   };
 
   const handleSave = () => {
-    if (!formData.headline || !formData.skills || !formData.years_experience || !formData.github_url || !formData.phone_number || !formData.location) {
-        toast.error("Please fill in all required fields");
-        return;
+    // Validate Phone if present
+    if (formData.phone_number && !validateEthiopianPhone(formData.phone_number)) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
     }
-    if (!validateEthiopianPhone(formData.phone_number)) {
-        toast.error("Please enter a valid Ethiopian phone number");
-        return;
-    }
-    updateProfile.mutate(formData);
+
+    const payload = {
+        years_experience: formData.years_experience,
+    };
+    updateProfile.mutate(payload, {
+      onSuccess: () => {
+        toast.success("Profile updated successfully");
+        // Update local auth context immediately so Navbar reflects changes
+        updateUser({ full_name: formData.full_name });
+      }
+    });
   };
 
   const handleUpdatePassword = () => {
@@ -160,18 +167,14 @@ export const SettingsPage = () => {
   );
 
   const profileData = profile?.profile || profile || {};
-  const avatarUrl = profileData.profile_picture_url || profileData.profile_picture;
+  const avatarUrl = profileData.profile_picture_url || profileData.profile_picture || profileData.avatar_url;
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="job_seeker" 
-        userName={formData.full_name || user?.email || "User"} 
-        userAvatar={avatarUrl || profile?.avatar_url}
-      />
+      <DashboardNavbar />
       
       <main className="container mx-auto px-4 py-8 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <header className="mb-8">
             <nav className="flex items-center gap-2 text-sm text-slate-500 mb-2">
               <span>Home</span>
@@ -345,7 +348,18 @@ export const SettingsPage = () => {
                     </div>
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-700">Phone Number *</label>
-                        <Input name="phone_number" value={formData.phone_number} onChange={handleChange} icon={<Phone className="h-4 w-4" />} placeholder="09... or +251 9..." />
+                        <Input 
+                            name="phone_number" 
+                            value={formData.phone_number} 
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === "" || (/^\d+$/.test(val) && val.length <= 10)) {
+                                    handleChange(e);
+                                }
+                            }} 
+                            icon={<Phone className="h-4 w-4" />} 
+                            placeholder="0911223344" 
+                        />
                     </div>
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-700">Location *</label>

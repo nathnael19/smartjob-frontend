@@ -70,6 +70,20 @@ export const useAuthActions = () => {
     },
   });
 
+  const forgotPasswordMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const { data } = await api.post("/api/v1/auth/forgot-password", { email });
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Password reset email sent. Please check your inbox.");
+      navigate("/login");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || "Failed to send reset email.");
+    },
+  });
+
   const completeOAuthProfileMutation = useMutation({
     mutationFn: async (profileData: { role: string; full_name?: string; company_name?: string }) => {
       await api.post("/api/v1/auth/oauth/complete-profile", profileData);
@@ -113,6 +127,7 @@ export const useAuthActions = () => {
     signupRecruiter: signupRecruiterMutation,
     completeOAuthProfile: completeOAuthProfileMutation,
     signInWithGoogle,
+    forgotPassword: forgotPasswordMutation,
     logout,
   };
 };

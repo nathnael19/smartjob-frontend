@@ -271,7 +271,9 @@ export const useUploadAvatar = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post("/api/v1/profile/me/avatar", formData);
+      const { data } = await api.post("/api/v1/profile/me/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data;
     },
     onSuccess: () => {
@@ -288,7 +290,9 @@ export const useUploadResume = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post("/api/v1/profile/me/resume", formData);
+      const { data } = await api.post("/api/v1/profile/me/resume", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data;
     },
     onSuccess: () => {
@@ -305,7 +309,9 @@ export const useUploadLegalDocument = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post("/api/v1/profile/me/legal-document", formData);
+      const { data } = await api.post("/api/v1/profile/me/legal-document", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return data;
     },
     onSuccess: () => {

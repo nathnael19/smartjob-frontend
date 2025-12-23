@@ -52,9 +52,9 @@ export const SignupPage = () => {
   });
 
   const validateEthiopianPhone = (phone: string) => {
-    // Regex for: +251 9... or 09... (9 or 10 digits total depending on prefix)
-    const regex = /^(?:\+251|0)[1-9]\d{8}$/;
-    return regex.test(phone.replace(/\s/g, ""));
+    // Regex for exactly 10 digits
+    const regex = /^\d{10}$/;
+    return regex.test(phone);
   };
 
   const [files, setFiles] = useState<{
@@ -112,7 +112,7 @@ export const SignupPage = () => {
         return;
       }
 
-      data.append("company_name", formData.company_name);
+      data.append("company", formData.company_name); // Backend expects 'company' matching the schema
       data.append("industry", formData.industry);
       data.append("company_size", formData.company_size);
       data.append("website_url", formData.website_url);
@@ -346,9 +346,14 @@ export const SignupPage = () => {
                 </div>
                 <Input
                   label="Phone Number *"
-                  placeholder="09... or +251 9..."
+                  placeholder="e.g. 0911223344"
                   value={formData.phone_number}
-                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || (/^\d+$/.test(val) && val.length <= 10)) {
+                      setFormData({ ...formData, phone_number: val });
+                    }
+                  }}
                 />
                 <Input
                   label="Website URL"
@@ -426,9 +431,14 @@ export const SignupPage = () => {
               <>
                 <Input
                   label="Phone Number *"
-                  placeholder="09... or +251 9..."
+                  placeholder="e.g. 0911223344"
                   value={formData.phone_number}
-                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || (/^\d+$/.test(val) && val.length <= 10)) {
+                      setFormData({ ...formData, phone_number: val });
+                    }
+                  }}
                 />
                 <Input
                   label="Location *"

@@ -31,13 +31,9 @@ export const MyApplicationsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="job_seeker" 
-        userName={displayName} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url} 
-      />
+      <DashboardNavbar />
       
-      <main className="container mx-auto px-4 py-8 lg:px-8">
+      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
         <header className="mb-8">
            <h1 className="text-3xl font-bold text-slate-900">Welcome back, {displayName}</h1>
            <p className="text-slate-500 mt-1">Here's what's happening with your job search today.</p>

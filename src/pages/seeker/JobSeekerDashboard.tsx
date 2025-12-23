@@ -32,115 +32,142 @@ export const JobSeekerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="job_seeker" 
-        userName={displayName} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url} 
-      />
+      <DashboardNavbar />
       
-      <main className="container mx-auto px-4 py-8 lg:px-8">
-        <header className="mb-8">
-           <h1 className="text-3xl font-bold text-slate-900">Welcome back, {displayName}</h1>
-           <p className="text-slate-500 mt-1">Here's what's happening with your job search today.</p>
+      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
+        {/* Welcome Section */}
+        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <div>
+             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Welcome back, {displayName}</h1>
+             <p className="text-slate-500 mt-2 text-lg">Here's what's happening with your job search today.</p>
+           </div>
+           
+           <div className="flex gap-3">
+             <Link to="/dashboard/seeker/jobs">
+                <Button className="font-bold shadow-lg shadow-primary/20 transition-transform hover:scale-105 active:scale-95">
+                  Find Jobs <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Button>
+             </Link>
+           </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
           {stats.map((stat, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
+            <Card key={i} className="group hover:shadow-lg transition-all duration-300 border-slate-200/60 overflow-hidden relative">
+              <div className={`absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity ${stat.color}`}>
+                <stat.icon className="h-16 w-16" />
+              </div>
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
+                  <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                     <stat.icon className="h-6 w-6" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 p-1 uppercase">{stat.change.includes("+") ? stat.change : ""}</span>
+                  <span className="text-[10px] font-bold text-slate-400 p-1 uppercase tracking-wider">{stat.change && stat.change !== "N/A" ? stat.change : "Total"}</span>
                 </div>
-                <p className="text-sm font-medium text-slate-500">{stat.label}</p>
-                <div className="flex items-end justify-between">
-                   <h3 className="text-2xl font-bold text-slate-900">{stat.value}</h3>
-                   {!stat.change.includes("+") && <p className="text-[10px] text-slate-400 font-bold max-w-[80px] text-right leading-tight">{stat.change}</p>}
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{stat.label}</p>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">{stat.value}</h3>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Applications Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          {/* Applications Section - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-             <div className="flex items-center border-b border-slate-200">
-                {["Applied Jobs", "Saved Jobs", "Archived"].map((tab, i) => (
-                  <button key={i} className={`px-6 py-3 text-sm font-bold transition-all border-b-2 ${i === 0 ? "text-primary border-primary" : "text-slate-500 border-transparent hover:text-slate-700"}`}>
-                    {tab}
-                  </button>
-                ))}
+             <div className="flex items-center justify-between border-b border-slate-200 pb-1">
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <Send className="h-5 w-5 text-primary" /> Recent Applications
+                </h2>
+                <Link to="/dashboard/seeker/applications" className="text-sm font-bold text-primary hover:underline">
+                  View All
+                </Link>
              </div>
 
-             <div className="space-y-6">
+             <div className="space-y-4">
                 {myApplications.length > 0 ? (
-                  myApplications.map((app: any, i: number) => (
-                    <Card key={i} className="group hover:border-primary transition-colors">
-                       <CardContent className="p-6">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                  myApplications.slice(0, 5).map((app: any, i: number) => (
+                    <Card key={i} className="group hover:border-primary/50 hover:shadow-md transition-all duration-300 cursor-pointer border-slate-200/60">
+                       <CardContent className="p-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                              <div className="flex items-start gap-4">
-                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-bold text-white shrink-0 shadow-sm bg-slate-200 text-slate-600`}>
+                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-bold text-xl text-white shrink-0 shadow-sm bg-gradient-to-br from-slate-700 to-slate-900`}>
                                    {(app.job?.title || app.job_title || "J")[0]}
                                 </div>
                                 <div>
-                                   <div className="flex items-center gap-2 mb-1">
-                                      <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors">{app.job?.title || app.job_title || "Unknown Job"}</h3>
-                                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                         app.status === "reviewed" ? "bg-blue-100 text-blue-700" :
-                                         app.status === "interview" ? "bg-green-100 text-green-700" :
-                                         app.status === "rejected" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"
+                                   <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                      <h3 className="font-bold text-slate-900 group-hover:text-primary transition-colors text-lg">
+                                        {app.job?.title || app.job_title || "Unknown Job"}
+                                      </h3>
+                                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                         app.status === "reviewed" ? "bg-blue-50 text-blue-700 border-blue-200" :
+                                         app.status === "interview" ? "bg-green-50 text-green-700 border-green-200" :
+                                         app.status === "rejected" ? "bg-red-50 text-red-700 border-red-200" : "bg-slate-50 text-slate-600 border-slate-200"
                                       }`}>
                                          {app.status}
                                       </span>
                                    </div>
-                                   <p className="text-sm text-slate-500 font-medium">{app.job?.company_name || app.company_name || 'Company'}</p>
-                                   <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
-                                      <Clock className="h-3 w-3" /> Applied {new Date(app.created_at || app.applied_at).toLocaleDateString()}
+                                   <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                                     {app.job?.company_name || app.company_name || 'Company'}
+                                     <span className="h-1 w-1 rounded-full bg-slate-300"></span>
+                                     <span className="flex items-center gap-1 text-slate-400 text-xs">
+                                      <Clock className="h-3 w-3" /> {new Date(app.created_at || app.applied_at).toLocaleDateString()}
+                                     </span>
                                    </p>
                                 </div>
                              </div>
-                             <div className="flex gap-2">
-                                <Link to={`/dashboard/seeker/jobs/${app.job_id}`}>
-                                  <Button variant="outline" size="sm" className="font-bold">View Details</Button>
-                                </Link>
-                             </div>
+                             
+                             <Button variant="outline" size="sm" className="shrink-0 font-bold border-slate-200 hover:border-primary hover:text-primary transition-colors">
+                               View Details
+                             </Button>
                           </div>
                        </CardContent>
                     </Card>
                   ))
                 ) : (
-                  <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
-                    <p className="text-slate-500 font-medium">You haven't applied for any jobs yet.</p>
-                    <Link to="/dashboard/seeker/jobs"><Button className="mt-4">Search Jobs</Button></Link>
+                  <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                     <div className="mx-auto h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                        <Send className="h-8 w-8" />
+                     </div>
+                     <h3 className="text-lg font-bold text-slate-900">No applications yet</h3>
+                     <p className="text-slate-500 max-w-xs mx-auto mt-2 text-sm">Start your journey by applying to jobs that match your skills.</p>
+                     <Link to="/dashboard/seeker/jobs">
+                        <Button className="mt-6 font-bold" variant="outline">Browse Jobs</Button>
+                     </Link>
                   </div>
                 )}
              </div>
           </div>
-
-          {/* Right Sidebar */}
-          <div className="space-y-6">
-             <Card>
-                <CardContent className="p-6">
-                   <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
-                      <div className="h-16 w-16 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-100">
-                         <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary font-bold text-xl">
-                            {displayName[0]}
-                         </div>
-                      </div>
-                      <div className="overflow-hidden">
-                         <h4 className="font-bold text-slate-900 truncate">{displayName}</h4>
-                         <p className="text-xs text-slate-500 truncate">{profile?.headline || 'Job Seeker'}</p>
-                      </div>
-                   </div>
-
-                   <div className="space-y-4">
-                      <div className="flex justify-between items-center text-xs mb-1">
-                         <span className="font-bold text-slate-500 uppercase">Profile Completion</span>
-                         <span className="font-bold text-primary">{
+          
+          {/* Right Sidebar - Profile & Saved Jobs Preview */}
+          <div className="space-y-8">
+            {/* Profile Card */}
+            <Card className="border-slate-200/60 overflow-hidden">
+               <div className="h-24 bg-gradient-to-r from-primary/10 to-primary/5"></div>
+               <CardContent className="px-6 pb-6 pt-0 relative">
+                  <div className="flex justify-between items-end mb-4 -mt-10">
+                     <div className="h-20 w-20 rounded-2xl border-4 border-white bg-white shadow-md overflow-hidden flex items-center justify-center">
+                        {profile?.avatar_url || profile?.profile_picture_url ? (
+                           <img src={profile?.avatar_url || profile?.profile_picture_url} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                           <span className="text-3xl font-bold text-slate-300">{displayName[0]}</span>
+                        )}
+                     </div>
+                     <Link to="/dashboard/seeker/settings">
+                        <Button variant="outline" size="sm" className="font-bold text-xs h-8">Edit Profile</Button> 
+                     </Link>
+                  </div>
+                  
+                  <div>
+                     <h3 className="text-lg font-bold text-slate-900">{displayName}</h3>
+                     <p className="text-slate-500 text-sm font-medium">{profile?.headline || "Add your headline..."}</p>
+                     
+                     <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                           <span className="text-slate-500 font-medium">Profile Completion</span>
+                           <span className="font-bold text-primary">{
                              Math.round(
                                  ((profile?.full_name ? 1 : 0) + 
                                  (profile?.headline ? 1 : 0) + 
@@ -148,9 +175,9 @@ export const JobSeekerDashboard = () => {
                                  (profile?.skills?.length ? 1 : 0)) / 4 * 100
                              )
                          }%</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                         <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${
+                        </div>
+                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                           <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${
                              Math.round(
                                  ((profile?.full_name ? 1 : 0) + 
                                  (profile?.headline ? 1 : 0) + 
@@ -158,31 +185,44 @@ export const JobSeekerDashboard = () => {
                                  (profile?.skills?.length ? 1 : 0)) / 4 * 100
                              )
                          }%` }} />
-                      </div>
-                      <Link to="/settings">
-                        <Button variant="outline" className="w-full mt-4 font-bold" size="sm">Edit Profile</Button>
+                        </div>
+                     </div>
+                  </div>
+               </CardContent>
+            </Card>
+
+            {/* Saved Jobs Preview */}
+            <Card className="border-slate-200/60">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                   <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                     <Bookmark className="h-4 w-4 text-orange-500" /> Saved Jobs
+                   </h3>
+                   <Link to="/dashboard/seeker/saved" className="text-xs font-bold text-primary hover:underline">View All</Link>
+                </div>
+                
+                <div className="space-y-3">
+                   {savedJobs?.slice(0, 3).map((job: any, i: number) => (
+                      <Link key={i} to={`/dashboard/seeker/jobs/${job.id}`} className="block group">
+                         <div className="flex gap-3 hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
+                            <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-500 shrink-0 text-sm">
+                               {(job.company_name || 'C')[0]}
+                            </div>
+                            <div className="min-w-0">
+                               <p className="text-sm font-bold text-slate-900 truncate group-hover:text-primary transition-colors">{job.title}</p>
+                               <p className="text-xs text-slate-500 truncate">{job.company_name}</p>
+                            </div>
+                         </div>
                       </Link>
-                   </div>
-                </CardContent>
-             </Card>
+                   ))}
+                   {(!savedJobs || savedJobs.length === 0) && (
+                      <p className="text-sm text-slate-400 italic text-center py-4">No saved jobs yet.</p>
+                   )}
+                </div>
+              </CardContent>    
+            </Card>
 
-             <Card>
-                <CardContent className="p-6">
-                   <div className="flex items-center justify-between mb-6">
-                      <h3 className="font-bold text-slate-900">Notifications</h3>
-                      <button className="text-[10px] font-bold text-primary uppercase hover:underline">View all</button>
-                   </div>
-                   <div className="space-y-6">
-                   <div className="space-y-6">
-                      <div className="text-center py-8 text-slate-500">
-                        <p className="text-sm">No new notifications.</p>
-                      </div>
-                   </div>
-                   </div>
-                </CardContent>
-             </Card>
-
-             <div className="rounded-2xl bg-primary p-6 text-white relative overflow-hidden text-center">
+            <div className="rounded-2xl bg-primary p-6 text-white relative overflow-hidden text-center">
                 <div className="relative z-10">
                    <div className="h-10 w-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-4">
                      <ArrowUpRight className="h-6 w-6" />

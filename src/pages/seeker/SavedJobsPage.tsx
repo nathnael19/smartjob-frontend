@@ -15,11 +15,7 @@ export const SavedJobsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="job_seeker" 
-        userName={displayName} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url} 
-      />
+      <DashboardNavbar />
       
       <main className="container mx-auto px-4 py-8 lg:px-8">
         <header className="mb-8">
@@ -27,7 +23,7 @@ export const SavedJobsPage = () => {
             <p className="text-slate-500 mt-1">Manage all the opportunities you've bookmarked.</p>
         </header>
 
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-7xl mx-auto">
             {isLoading ? (
               <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-10 w-12 animate-spin text-primary" />

@@ -30,18 +30,13 @@ export const CandidatesPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="recruiter" 
-        userName={profile?.full_name || user?.email?.split('@')[0] || "Recruiter"} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url}
-        companyName={profile?.company_name} 
-      />
+      <DashboardNavbar />
       <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Candidates</h1>
-            <p className="text-slate-500">View and manage applicants for your posted jobs.</p>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Candidates</h1>
+            <p className="text-slate-500 mt-2 text-lg">View and manage applicants for your posted jobs.</p>
           </div>
         </div>
 
@@ -51,7 +46,7 @@ export const CandidatesPage = () => {
             </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
           {/* Jobs List (Sidebar) */}
           <div className="lg:col-span-1 space-y-4">
              <div className="flex items-center justify-between">
@@ -64,7 +59,7 @@ export const CandidatesPage = () => {
                     placeholder="Filter jobs..." 
                     value={jobSearch}
                     onChange={(e) => setJobSearch(e.target.value)}
-                    className="h-10 w-full pl-10 pr-4 rounded-lg bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="h-11 w-full pl-10 pr-4 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all duration-200"
                 />
              </div>
              {filteredJobs?.map((job: any) => (

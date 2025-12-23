@@ -110,46 +110,42 @@ export const SeekerJobsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="job_seeker" 
-        userName={displayName} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url} 
-      />
+      <DashboardNavbar />
       
-      <main className="container mx-auto px-4 py-8 lg:px-8">
-        <header className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Find Your Dream Job</h1>
-            <p className="text-slate-500 mt-1">Browse thousands of job openings to find the perfect role for you.</p>
+      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
+        <header className="mb-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Find Your Dream Job</h1>
+            <p className="text-slate-500 mt-2 text-lg">Browse thousands of job openings to find the perfect role for you.</p>
         </header>
 
         {/* Top Search Bar */}
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-10">
-            <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white/70 backdrop-blur-xl p-3 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-200/60 mb-12 animate-in fade-in slide-in-from-bottom-6 duration-700 transition-all hover:shadow-2xl">
+            <div className="flex flex-col md:flex-row gap-3">
                 <div className="flex-1 relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                     <input 
                         type="text" 
                         placeholder="Job title, keywords, or company" 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-12 pl-12 pr-4 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 text-slate-900 placeholder:text-slate-400"
+                        className="w-full h-14 pl-14 pr-6 rounded-[1.25rem] bg-slate-50/50 border-none focus:ring-4 focus:ring-primary/10 text-slate-900 placeholder:text-slate-400 font-medium transition-all"
                     />
                 </div>
                 <div className="flex-1 relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                     <input 
                         type="text" 
-                        placeholder="Location (City, State, Zip)" 
+                        placeholder="Location" 
                         value={locationTerm}
                         onChange={(e) => setLocationTerm(e.target.value)}
-                        className="w-full h-12 pl-12 pr-4 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-primary/20 text-slate-900 placeholder:text-slate-400"
+                        className="w-full h-14 pl-14 pr-6 rounded-[1.25rem] bg-slate-50/50 border-none focus:ring-4 focus:ring-primary/10 text-slate-900 placeholder:text-slate-400 font-medium transition-all"
                     />
                 </div>
-                <Button size="lg" className="h-12 px-8 font-bold">Search Jobs</Button>
+                <Button size="lg" className="h-14 px-10 rounded-[1.25rem] font-black text-lg">Search Jobs</Button>
             </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
             {/* Sidebar Filters */}
             <aside className="space-y-8">
                 <div className="flex items-center justify-between lg:hidden mb-4">

@@ -13,11 +13,14 @@ export const LandingPage = () => {
   const { pathname } = useLocation();
   const { data: jobs, isLoading } = useJobs();
 
-  // Redirect logged-in users to dashboard if they visit the landing page
-  // Limit this to the root path "/" and maybe "/jobs" if desired, but user specifically asked about landing page
-  if (user && pathname === "/") {
-     const dashboardPath = user.role === "recruiter" ? "/dashboard/employer" : "/dashboard/seeker";
-     return <Navigate to={dashboardPath} replace />;
+  // Redirect recruiters to their dashboard as the landing/jobs public pages are for seekers
+  if (user?.role === "recruiter") {
+     return <Navigate to="/dashboard/employer" replace />;
+  }
+
+  // Redirect seekers from the root to their dashboard
+  if (user?.role === "job_seeker" && pathname === "/") {
+     return <Navigate to="/dashboard/seeker" replace />;
   }
 
   const trendingJobs = jobs?.slice(0, 6).map((job: any) => ({
@@ -39,33 +42,33 @@ export const LandingPage = () => {
       <section className="relative overflow-hidden bg-white pt-20 pb-16 lg:pt-32">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex flex-col items-center text-center">
-            <h1 className="max-w-4xl text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
-              Find your next <span className="text-primary italic">career move</span> today
+            <h1 className="max-w-4xl text-5xl font-black tracking-tight text-slate-900 sm:text-7xl lg:text-8xl leading-[1.1]">
+              Find your next <span className="text-primary italic font-serif">career move</span> today
             </h1>
-            <p className="mt-6 max-w-2xl text-lg text-slate-500">
-              Thousands of jobs are waiting for you. Search by role, company, or location.
+            <p className="mt-8 max-w-2xl text-xl text-slate-500/80 font-medium">
+              Join 10,000+ professionals finding their dream roles at top companies. Search by role, company, or location.
             </p>
 
-            <div className="mt-10 w-full max-w-4xl overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-200/50">
+            <div className="mt-12 w-full max-w-4xl overflow-hidden rounded-[2rem] border border-slate-200/60 bg-white/70 backdrop-blur-2xl p-3 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] transition-all hover:shadow-[0_48px_80px_-24px_rgba(0,0,0,0.15)]">
               <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                <div className="flex flex-1 items-center px-4">
-                  <Search className="h-5 w-5 text-slate-400 mr-3" />
+                <div className="flex flex-1 items-center px-6">
+                  <Search className="h-6 w-6 text-primary mr-4" />
                   <input 
                     type="text" 
                     placeholder="Job title, keywords, or company" 
-                    className="h-12 w-full border-none focus:outline-none focus:ring-0 text-slate-900"
+                    className="h-14 w-full border-none focus:outline-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium"
                   />
                 </div>
-                <div className="hidden h-8 w-px bg-slate-200 md:block" />
-                <div className="flex flex-1 items-center px-4">
-                  <MapPin className="h-5 w-5 text-slate-400 mr-3" />
+                <div className="hidden h-10 w-px bg-slate-200/60 md:block" />
+                <div className="flex flex-1 items-center px-6">
+                  <MapPin className="h-6 w-6 text-primary mr-4" />
                   <input 
                     type="text" 
-                    placeholder="City, state, or zip code" 
-                    className="h-12 w-full border-none focus:outline-none focus:ring-0 text-slate-900"
+                    placeholder="Location" 
+                    className="h-14 w-full border-none focus:outline-none focus:ring-0 text-slate-900 placeholder:text-slate-400 font-medium"
                   />
                 </div>
-                <Button size="lg" className="px-10">Search</Button>
+                <Button size="lg" className="px-12 rounded-[1.25rem] text-lg">Search Jobs</Button>
               </div>
             </div>
 

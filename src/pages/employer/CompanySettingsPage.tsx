@@ -25,8 +25,8 @@ const COMPANY_SIZE_OPTIONS = [
 ];
 
 const validateEthiopianPhone = (phone: string) => {
-  const regex = /^(?:\+251|0)[1-9]\d{8}$/;
-  return regex.test(phone.replace(/\s/g, ""));
+  const regex = /^\d{10}$/;
+  return regex.test(phone);
 };
 
 export const CompanySettingsPage = () => {
@@ -107,7 +107,23 @@ export const CompanySettingsPage = () => {
         toast.error("Please enter a valid Ethiopian phone number");
         return;
     }
-    await updateProfile.mutateAsync(formData);
+
+    // Construct payload matching DB schema
+    const payload = {
+        company: formData.company, // Match DB column 'company'
+        industry: formData.industry,
+        company_size: formData.company_size,
+        website_url: formData.website_url,
+        location: formData.location,
+        about_company: formData.about_company,
+        phone_number: formData.phone_number,
+        founded_year: formData.founded_year ? parseInt(formData.founded_year.toString()) : null, // Ensure Integer
+        twitter_url: formData.twitter_url,
+        linkedin_url: formData.linkedin_url,
+        github_url: formData.github_url
+    };
+
+    await updateProfile.mutateAsync(payload);
   };
 
   const handleDeleteAccount = async () => {
@@ -133,19 +149,14 @@ export const CompanySettingsPage = () => {
   // Derive display values
   const data = profile?.profile || profile || {};
   const companyName = formData.company || "Company";
-  const profilePic = data.profile_picture_url || data.profile_picture;
+  const profilePic = data.profile_picture_url || data.profile_picture || data.avatar_url;
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="recruiter" 
-        userName={data.full_name || user?.email?.split('@')[0]} 
-        companyName={companyName} 
-        userAvatar={profilePic || profile?.avatar_url}
-      />
+      <DashboardNavbar />
       
       <main className="container mx-auto px-4 py-8 lg:px-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <header className="mb-8">
             <Link to="/dashboard/employer/profile" className="inline-flex items-center text-sm text-slate-500 hover:text-primary mb-4 transition-colors">
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Profile
@@ -255,24 +266,29 @@ export const CompanySettingsPage = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <Input 
-                    label="Website" 
-                    name="website_url"
-                    icon={<Globe className="h-4 w-4" />} 
-                    placeholder="https://company.com" 
-                    value={formData.website_url}
-                    onChange={handleInputChange}
-                  />
-                  <Input 
-                    label="Phone *" 
-                    name="phone_number"
-                    icon={<Phone className="h-4 w-4" />} 
-                    placeholder="09... or +251 9..." 
-                    value={formData.phone_number}
-                    onChange={handleInputChange}
-                  />
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <Input 
+                      label="Website" 
+                      name="website_url"
+                      icon={<Globe className="h-4 w-4" />} 
+                      placeholder="https://company.com" 
+                      value={formData.website_url}
+                      onChange={handleInputChange}
+                    />
+                    <Input 
+                      label="Phone *" 
+                      name="phone_number"
+                      icon={<Phone className="h-4 w-4" />} 
+                      placeholder="0911223344" 
+                      value={formData.phone_number}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || (/^\d+$/.test(val) && val.length <= 10)) {
+                           handleInputChange(e);
+                        }
+                      }}
+                    />
+                  </div>
                 
                 <div className="grid grid-cols-1 gap-6">
                     <Input 

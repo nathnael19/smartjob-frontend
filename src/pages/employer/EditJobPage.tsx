@@ -126,12 +126,7 @@ export const EditJobPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="recruiter" 
-        userName={profile?.full_name || user?.email?.split('@')[0] || "Recruiter"} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url}
-        companyName={companyName} 
-      />
+      <DashboardNavbar />
       <main className="container mx-auto px-4 py-8 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb / Back Link */}

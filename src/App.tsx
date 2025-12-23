@@ -45,12 +45,13 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/jobs" element={<LandingPage />} />
             <Route path="/jobs/:id" element={<JobDetailsPage />} />
-            <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/companies" element={<Navigate to="/dashboard/seeker/companies" replace />} />
           </Route>
 
           {/* Global Protected Routes (Any Authenticated User) */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/settings" element={<SettingsPage />} />
+             <Route path="/dashboard/seeker/settings" element={<SettingsPage />} />
+             <Route path="/settings" element={<Navigate to="/dashboard/seeker/settings" replace />} />
           </Route>
 
           {/* Auth Routes (Guest Only) */}
@@ -67,6 +68,7 @@ function App() {
             <Route path="/dashboard/seeker/applications" element={<MyApplicationsPage />} />
             <Route path="/dashboard/seeker/jobs/:id" element={<SeekerJobDetailsPage />} />
             <Route path="/dashboard/seeker/saved" element={<SavedJobsPage />} />
+            <Route path="/dashboard/seeker/companies" element={<CompaniesPage />} />
           </Route>
           
           {/* Employer Private Routes */}

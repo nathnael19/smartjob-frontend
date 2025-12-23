@@ -35,35 +35,30 @@ export const EmployerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="recruiter" 
-        userName={profile?.full_name || user?.email?.split('@')[0]} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url}
-        companyName={companyName} 
-      />
+      <DashboardNavbar />
       
-      <main className="container mx-auto px-4 py-8 lg:px-8">
-        <header className="mb-8 flex flex-col md:flex-row md:items-center gap-6">
-           <div className="h-20 w-20 rounded-2xl bg-slate-900 flex items-center justify-center shrink-0 shadow-lg overflow-hidden border-2 border-white">
+      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
+        <header className="mb-10 flex flex-col md:flex-row md:items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+           <div className="h-24 w-24 rounded-3xl bg-slate-900 flex items-center justify-center shrink-0 shadow-2xl overflow-hidden border-4 border-white">
               {(profile?.avatar_url || profile?.profile_picture_url) ? (
                 <img src={profile?.avatar_url || profile?.profile_picture_url} alt={companyName} className="h-full w-full object-cover" />
               ) : (
-                <span className="text-3xl font-black text-white italic">{companyName[0]}</span>
+                <span className="text-4xl font-black text-white italic">{companyName[0]}</span>
               )}
            </div>
            <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-slate-900">
+                <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
                   Welcome back, {profile?.full_name || user?.email?.split('@')[0]}
                 </h1>
-                {user?.is_verified && <VerifiedBadge />}
+                {user?.is_verified && <VerifiedBadge className="scale-125 ml-2" />}
               </div>
-              <p className="text-slate-500 mt-1">Here's what's happening with your job postings today.</p>
+              <p className="text-slate-500 mt-1 text-lg">Here's what's happening with your job postings today.</p>
            </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
           {stats.map((stat) => (
             <Card key={stat.label}>
               <CardContent className="p-6">
@@ -134,7 +129,7 @@ export const EmployerDashboard = () => {
            </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
           {/* Recent Job Postings */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">

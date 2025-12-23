@@ -26,15 +26,10 @@ export const CompanyProfilePage = () => {
  
    return (
      <div className="min-h-screen bg-slate-50">
-       <DashboardNavbar 
-         role="recruiter" 
-         userName={company.full_name || user?.full_name || user?.email?.split('@')[0]} 
-         companyName={companyName} 
-         userAvatar={company.profile_picture_url || company.profile_picture || profile?.avatar_url}
-       />
+       <DashboardNavbar />
        
        <main className="container mx-auto px-4 py-8 lg:px-8">
-         <div className="max-w-6xl mx-auto space-y-8">
+         <div className="max-w-7xl mx-auto space-y-8">
             {/* Header Card */}
             <Card>
                <CardContent className="p-8">

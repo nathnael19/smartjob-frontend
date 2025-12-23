@@ -48,8 +48,13 @@ export const PostJobPage = () => {
 
   const removeSkill = (s: string) => setSkills(skills.filter(skill => skill !== s));
 
+  const { data: profile } = useMyProfile();
+
   const handlePublish = () => {
-    if (!user?.is_verified) {
+    // Determine if verified from profile (most fresh) or user (fallback)
+    const isVerified = profile?.is_verified ?? profile?.profile?.is_verified ?? user?.is_verified;
+
+    if (!isVerified) {
       toast.error("You must verify your company before posting jobs.");
       return;
     }
@@ -103,19 +108,14 @@ export const PostJobPage = () => {
     });
   };
 
-  const { data: profile } = useMyProfile();
+  // const { data: profile } = useMyProfile(); // Removed duplicate
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <DashboardNavbar 
-        role="recruiter" 
-        userName={profile?.full_name || user?.email?.split('@')[0] || "Employer"} 
-        userAvatar={profile?.avatar_url || profile?.profile_picture_url}
-        companyName={profile?.company_name || user?.company || "Company"} 
-      />
+      <DashboardNavbar />
       
-      <main className="container mx-auto px-4 py-8 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-7xl">
+        <div className="mx-auto">
           <header className="mb-8">
             <nav className="flex items-center gap-2 text-sm text-slate-500 mb-2">
               <span>Dashboard</span>

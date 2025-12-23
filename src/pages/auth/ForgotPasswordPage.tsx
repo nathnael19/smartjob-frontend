@@ -3,8 +3,23 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Mail, ArrowLeft, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { useAuthActions } from "../../hooks/useAuthActions";
+import { toast } from "react-hot-toast";
 
 export const ForgotPasswordPage = () => {
+  const [email, setEmail] = useState("");
+  const { forgotPassword } = useAuthActions();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    forgotPassword.mutate(email);
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
@@ -31,15 +46,24 @@ export const ForgotPasswordPage = () => {
                 </p>
               </div>
 
-              <form className="mt-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 <Input
                   label="Email Address"
                   placeholder="name@company.com"
                   type="email"
                   icon={<Mail className="h-4 w-4" />}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
 
-                <Button className="w-full" size="lg">Send reset link</Button>
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  type="submit" 
+                  disabled={forgotPassword.isPending}
+                >
+                  {forgotPassword.isPending ? "Sending..." : "Send reset link"}
+                </Button>
 
                 <div className="text-center">
                   <Link
