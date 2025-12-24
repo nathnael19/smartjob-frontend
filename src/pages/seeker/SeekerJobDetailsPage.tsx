@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { MapPin, Briefcase, Clock, DollarSign, Star, Bookmark, Share2, ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useJobDetails, useApplyToJob, useJobs, useMyProfile, useMyApplications, useToggleSaveJob, useSavedJobs } from "../../hooks/useApi";
+import { useJobDetails, useApplyToJob, useJobs, useMyProfile, useMyApplications, useSavedJobs, useSaveJob, useUnsaveJob } from "../../hooks/useApi";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
@@ -18,7 +18,8 @@ export const SeekerJobDetailsPage = () => {
   const { data: myApplications } = useMyApplications();
   const { data: savedJobs } = useSavedJobs();
   const applyMutation = useApplyToJob();
-  const saveToggleMutation = useToggleSaveJob();
+  const saveJobMutation = useSaveJob();
+  const unsaveJobMutation = useUnsaveJob();
   const [coverLetter, setCoverLetter] = useState("");
 
   const hasApplied = myApplications?.some((app: any) => 
@@ -26,9 +27,15 @@ export const SeekerJobDetailsPage = () => {
   );
 
   const isSaved = savedJobs?.some((sj: any) => String(sj.id) === String(id));
+  const isPendingSave = saveJobMutation.isPending || unsaveJobMutation.isPending;
 
   const handleToggleSave = () => {
-    saveToggleMutation.mutate(id || "");
+    if (!id) return;
+    if (isSaved) {
+      unsaveJobMutation.mutate(id);
+    } else {
+      saveJobMutation.mutate(id);
+    }
   };
 
   const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
@@ -215,7 +222,7 @@ export const SeekerJobDetailsPage = () => {
                             className="w-full font-bold h-14" 
                             size="lg"
                             onClick={handleToggleSave}
-                            isLoading={saveToggleMutation.isPending}
+                            isLoading={isPendingSave}
                           >
                              <Bookmark className={`mr-2 h-5 w-5 ${isSaved ? 'fill-primary text-primary' : ''}`} /> 
                              {isSaved ? "Job Saved" : "Save Job"}

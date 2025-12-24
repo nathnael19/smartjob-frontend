@@ -2,7 +2,7 @@ import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { MapPin, Star, Loader2, BookmarkX, ArrowRight } from "lucide-react";
-import { useSavedJobs, useMyProfile } from "../../hooks/useApi";
+import { useSavedJobs, useMyProfile, useUnsaveJob } from "../../hooks/useApi"; // Updated import
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -10,6 +10,11 @@ export const SavedJobsPage = () => {
   const { user } = useAuth();
   const { data: profile } = useMyProfile();
   const { data: savedJobs, isLoading } = useSavedJobs();
+  const unsaveMutation = useUnsaveJob();
+
+  const handleUnsave = (id: string) => {
+    unsaveMutation.mutate(id);
+  };
 
   const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
 
@@ -46,7 +51,14 @@ export const SavedJobsPage = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                        <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full uppercase tracking-wider">Saved</span>
-                                       <button className="text-primary hover:text-primary/80 transition-colors">
+                                       <button 
+                                          className="text-primary hover:text-primary/80 transition-colors z-20 relative"
+                                          onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              handleUnsave(job.id);
+                                          }}
+                                       >
                                           <Star className="h-5 w-5 fill-primary" />
                                        </button>
                                     </div>

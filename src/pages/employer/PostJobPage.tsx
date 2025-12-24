@@ -109,6 +109,41 @@ export const PostJobPage = () => {
     });
   };
 
+  const handleSaveDraft = () => {
+    // Basic validation for draft (maybe less strict, but let's keep it similar for now or minimal)
+    if (!formData.title.trim()) {
+      toast.error("Draft must have at least a title");
+      return;
+    }
+
+    const jobPayload = {
+      title: formData.title,
+      desc: formData.description,
+      location: formData.location,
+      location_type: formData.location_type,
+      is_remote: formData.location_type === "Remote",
+      job_type: formData.employment_type,
+      experience_level: formData.experience_level,
+      category: formData.category,
+      salary_min: formData.salary_min || null,
+      salary_max: formData.salary_max || null,
+      currency: "USD",
+      requirements: skills,
+      deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
+      status: "draft", // STATUS IS DRAFT
+    };
+
+    createJob.mutate(jobPayload, {
+      onSuccess: () => {
+        toast.success("Job saved as draft!");
+        navigate("/dashboard/employer/jobs");
+      },
+       onError: (error: any) => {
+        console.error("[PostJobPage] Error saving draft:", error);
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <DashboardNavbar />
@@ -342,7 +377,16 @@ export const PostJobPage = () => {
                     >
                       Publish Job Now
                     </Button>
-                    <Button variant="outline" className="w-full font-bold" size="lg" disabled={!isVerified}>Save as Draft</Button>
+                    <Button 
+                       variant="outline" 
+                       className="w-full font-bold" 
+                       size="lg" 
+                       disabled={!isVerified}
+                       onClick={handleSaveDraft}
+                       isLoading={createJob.isPending}
+                    >
+                       Save as Draft
+                    </Button>
                     <button className="w-full text-sm font-bold text-slate-400 py-2 hover:text-slate-600">Cancel</button>
                   </div>
                   

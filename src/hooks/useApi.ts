@@ -88,26 +88,46 @@ export const useSavedJobs = () => {
   return useQuery({
     queryKey: ["jobs", "saved"],
     queryFn: async () => {
-      const { data } = await api.get("/api/v1/jobs/saved");
+      const { data } = await api.get("/api/v1/saved-jobs");
       return data;
     },
   });
 };
 
-export const useToggleSaveJob = () => {
+
+export const useSaveJob = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const { data } = await api.post(`/api/v1/jobs/${jobId}/save`);
+      const { data } = await api.post(`/api/v1/saved-jobs/${jobId}`);
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobs", "saved"] });
       queryClient.invalidateQueries({ queryKey: ["jobs"] });
-      toast.success("Saved status updated");
+      // Invalidate specific job details to update UI if needed
+      toast.success("Job saved");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Failed to update saved status");
+      toast.error(error.response?.data?.detail || "Failed to save job");
+    },
+  });
+};
+
+export const useUnsaveJob = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (jobId: string) => {
+      const { data } = await api.delete(`/api/v1/saved-jobs/${jobId}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobs", "saved"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      toast.success("Job removed from saved");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.detail || "Failed to unsave job");
     },
   });
 };
@@ -181,15 +201,16 @@ export const useMyJobs = () => {
     queryKey: ["jobs", "me"],
     queryFn: async () => {
       try {
-        // Fetch all jobs
-        const { data: responseData } = await api.get("/api/v1/jobs");
+        const { data } = await api.get("/api/v1/jobs/my-jobs");
+        const list = Array.isArray(data) ? data : (data?.data || []);
         
-        // Handle both direct array and { data: [...] } wrapping
-        const allJobs = Array.isArray(responseData) ? responseData : (responseData?.data || []);
+        // Enrich with counts if needed, but if backend returns pure job list, we might miss counts.
+        // The previous implementation fetched applicants count personally.
+        // Does the new endpoint return applicant counts? Use provided code says "select(*)" from job. 
+        // It does NOT include applicant counts.
+        // We must re-implement the enrichment if we want to keep the dashboard features.
         
-        // Filtering disabled as it was causing issues with job visibility
-        // Returning all jobs but enriching with counts
-        const myJobs = allJobs;
+        const myJobs = list;
 
         // Fetch application counts and status breakdowns for each job in parallel
         const jobsWithCounts = await Promise.all(myJobs.map(async (job: any) => {
@@ -197,7 +218,6 @@ export const useMyJobs = () => {
             const { data: applicantsData } = await api.get(`/api/v1/applications/job/${job.id}`);
             const applicants = Array.isArray(applicantsData) ? applicantsData : (applicantsData?.data || []);
             
-            // Calculate status breakdown
             const status_breakdown = applicants.reduce((acc: any, app: any) => {
               const status = app.status || 'applied';
               acc[status] = (acc[status] || 0) + 1;
@@ -210,19 +230,15 @@ export const useMyJobs = () => {
               status_breakdown
             };
           } catch (error) {
-            console.error(`[useMyJobs] Error fetching applicants for job ${job.id}:`, error);
+            // console.error(`[useMyJobs] Error fetching applicants for job ${job.id}`);
             return { ...job, applicants_count: 0, status_breakdown: {} };
           }
         }));
         
-        
-        const sortedJobs = [...jobsWithCounts].sort((a: any, b: any) => 
-          new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-        );
+        return jobsWithCounts;
 
-        return sortedJobs;
       } catch (error: any) {
-        console.error("[useMyJobs] Error in useMyJobs:", error);
+        console.error("[useMyJobs] Error:", error);
         throw error;
       }
     },
