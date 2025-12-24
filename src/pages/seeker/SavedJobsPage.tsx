@@ -2,13 +2,10 @@ import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { MapPin, Star, Loader2, BookmarkX, ArrowRight } from "lucide-react";
-import { useSavedJobs, useMyProfile, useUnsaveJob } from "../../hooks/useApi"; // Updated import
+import { useSavedJobs, useUnsaveJob } from "../../hooks/useApi"; // Updated import
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 
 export const SavedJobsPage = () => {
-  const { user } = useAuth();
-  const { data: profile } = useMyProfile();
   const { data: savedJobs, isLoading } = useSavedJobs();
   const unsaveMutation = useUnsaveJob();
 
@@ -16,7 +13,7 @@ export const SavedJobsPage = () => {
     unsaveMutation.mutate(id);
   };
 
-  const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
+
 
   return (
     <div className="min-h-screen bg-slate-50">

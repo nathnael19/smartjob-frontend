@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Search, LogOut, Settings, User, Menu, X as CloseIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useAuthActions } from "../../hooks/useAuthActions";
+// interface DashboardNavbarProps removed as it uses context now
 import { useAuth } from "../../context/AuthContext";
 
 

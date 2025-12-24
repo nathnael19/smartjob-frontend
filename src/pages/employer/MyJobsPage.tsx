@@ -6,14 +6,11 @@ import { Edit2, Trash2, Eye, Briefcase, Plus, Search, ArrowUpRight } from "lucid
 import { AlertDialog } from "../../components/ui/AlertDialog";
 import { useState } from "react";
 
-import { useMyJobs, useMyProfile, useDeleteJob } from "../../hooks/useApi";
-import { useAuth } from "../../context/AuthContext";
+import { useMyJobs, useDeleteJob } from "../../hooks/useApi";
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
 export const MyJobsPage = () => {
-  const { user } = useAuth();
-  const { data: profile } = useMyProfile();
   const { data: myJobs, isLoading, error } = useMyJobs();
   const deleteJob = useDeleteJob();
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
@@ -61,7 +58,7 @@ export const MyJobsPage = () => {
 
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const companyName = profile?.company_name || user?.company || "Company";
+
   const jobs = myJobs || [];
 
   // Calculate counts

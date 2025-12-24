@@ -5,14 +5,11 @@ import { Card, CardContent } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Search, MapPin, Star, Loader2, Filter } from "lucide-react";
 import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
-import { useJobs, useMyProfile } from "../../hooks/useApi";
+import { useJobs } from "../../hooks/useApi";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import { EMPLOYMENT_TYPES, EXPERIENCE_LEVELS } from "../../lib/constants";
 
 export const SeekerJobsPage = () => {
-  const { user } = useAuth();
-  const { data: profile } = useMyProfile();
   const { data: jobs, isLoading } = useJobs();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,7 +30,7 @@ export const SeekerJobsPage = () => {
     }
   }, [queryTerm]);
 
-  const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
+
 
   // Filter Options
   const jobTypes = EMPLOYMENT_TYPES;

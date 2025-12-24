@@ -5,7 +5,7 @@ import { MapPin, Briefcase, Clock, DollarSign, Star, Bookmark, Share2, ShieldChe
 import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
 
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useJobDetails, useApplyToJob, useJobs, useMyApplications, useToggleSaveJob, useSavedJobs } from "../../hooks/useApi";
+import { useJobDetails, useApplyToJob, useJobs, useMyApplications, useSavedJobs, useSaveJob, useUnsaveJob } from "../../hooks/useApi";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 
@@ -18,7 +18,8 @@ export const JobDetailsPage = () => {
   const { data: myApplications } = useMyApplications();
   const { data: savedJobs } = useSavedJobs();
   const applyMutation = useApplyToJob();
-  const saveToggleMutation = useToggleSaveJob();
+  const saveJobMutation = useSaveJob();
+  const unsaveJobMutation = useUnsaveJob();
   const [coverLetter, setCoverLetter] = useState("");
   
   const hasApplied = myApplications?.some((app: any) => 
@@ -26,6 +27,7 @@ export const JobDetailsPage = () => {
   );
 
   const isSaved = savedJobs?.some((sj: any) => String(sj.id) === String(id));
+  const isPendingSave = saveJobMutation.isPending || unsaveJobMutation.isPending;
 
   const handleToggleSave = () => {
     if (!user) {
@@ -37,7 +39,13 @@ export const JobDetailsPage = () => {
       toast.error("Recruiters cannot save jobs");
       return;
     }
-    saveToggleMutation.mutate(id || "");
+    if (!id) return;
+
+    if (isSaved) {
+      unsaveJobMutation.mutate(id);
+    } else {
+      saveJobMutation.mutate(id);
+    }
   };
 
   const handleApply = () => {
@@ -250,7 +258,7 @@ export const JobDetailsPage = () => {
                             className="w-full font-bold h-14" 
                             size="lg"
                             onClick={handleToggleSave}
-                            isLoading={saveToggleMutation.isPending}
+                            isLoading={isPendingSave}
                           >
                              <Bookmark className={`mr-2 h-5 w-5 ${isSaved ? 'fill-primary text-primary' : ''}`} /> 
                              {isSaved ? "Job Saved" : "Save Job"}

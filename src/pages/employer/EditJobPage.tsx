@@ -4,8 +4,7 @@ import { Input } from "../../components/ui/Input";
 import { Card, CardContent } from "../../components/ui/Card";
 import { MapPin, DollarSign, List, FileText, ArrowLeft, Save, Loader2, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useJobDetails, useUpdateJob, useMyProfile } from "../../hooks/useApi"; // Ensure useUpdateJob is exported
-import { useAuth } from "../../context/AuthContext";
+import { useJobDetails, useUpdateJob } from "../../hooks/useApi"; // Ensure useUpdateJob is exported
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
 import { toast } from "react-hot-toast";
 import { 
@@ -19,8 +18,6 @@ export const EditJobPage = () => {
   const navigate = useNavigate();
   
   // Fetch existing job data
-  const { user } = useAuth();
-  const { data: profile } = useMyProfile();
   const { data: job, isLoading, error } = useJobDetails(id || "");
   const updateJob = useUpdateJob();
 
@@ -122,7 +119,7 @@ export const EditJobPage = () => {
     );
   }
 
-  const companyName = profile?.company_name || user?.company || job?.company_name || "Company";
+
 
   return (
     <div className="min-h-screen bg-slate-50">
