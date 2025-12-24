@@ -3,7 +3,7 @@ import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { MapPin, Briefcase, Clock, DollarSign, Star, Bookmark, Share2, ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useJobDetails, useApplyToJob, useJobs, useMyProfile, useMyApplications, useSavedJobs, useSaveJob, useUnsaveJob } from "../../hooks/useApi";
+import { useJobDetails, useApplyToJob, useJobs, useMyApplications, useSavedJobs, useSaveJob, useUnsaveJob } from "../../hooks/useApi";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
@@ -13,7 +13,6 @@ export const SeekerJobDetailsPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: job, isLoading, error } = useJobDetails(id || "");
-  const { data: profile } = useMyProfile();
   const { data: jobs } = useJobs();
   const { data: myApplications } = useMyApplications();
   const { data: savedJobs } = useSavedJobs();
@@ -38,7 +37,7 @@ export const SeekerJobDetailsPage = () => {
     }
   };
 
-  const displayName = profile?.full_name || user?.full_name || user?.email?.split('@')[0] || "User";
+
 
   const handleApply = () => {
     if (!user) {

@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { useMyJobs, useJobApplicants, useMyProfile, useUpdateApplicationStatus } from "../../hooks/useApi";
+import { useMyJobs, useJobApplicants, useUpdateApplicationStatus } from "../../hooks/useApi";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Loader2, User, Mail, FileText, Search } from "lucide-react";
 import { DashboardNavbar } from "../../components/layout/DashboardNavbar";
-import { useAuth } from "../../context/AuthContext";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
 export const CandidatesPage = () => {
-  const { user } = useAuth();
-  const { data: profile } = useMyProfile();
   const { data: jobs, isLoading: jobsLoading } = useMyJobs();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 

@@ -2,7 +2,7 @@ import { Search, MapPin, Building2, Globe, Users, ArrowRight, Loader2 } from "lu
 import { VerifiedBadge } from "../../components/ui/VerifiedBadge";
 
 import { useState, useMemo } from "react";
-import { useJobs, useMyProfile } from "../../hooks/useApi";
+import { useJobs } from "../../hooks/useApi";
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent } from "../../components/ui/Card";
 import { Link, Navigate } from "react-router-dom";

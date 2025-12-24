@@ -1,0 +1,12 @@
+
+> job-portal@0.0.0 build
+> tsc -b && vite build
+
+src/pages/employer/CandidatesPage.tsx(11,9): error TS6133: 'user' is declared but its value is never read.
+src/pages/employer/CandidatesPage.tsx(12,9): error TS6133: 'profile' is declared but its value is never read.
+src/pages/employer/EditJobPage.tsx(125,9): error TS6133: 'companyName' is declared but its value is never read.
+src/pages/employer/MyJobsPage.tsx(64,9): error TS6133: 'companyName' is declared but its value is never read.
+src/pages/seeker/SavedJobsPage.tsx(19,9): error TS6133: 'displayName' is declared but its value is never read.
+src/pages/seeker/SeekerJobDetailsPage.tsx(41,9): error TS6133: 'displayName' is declared but its value is never read.
+src/pages/seeker/SeekerJobsPage.tsx(36,9): error TS6133: 'displayName' is declared but its value is never read.
+src/pages/shared/CompaniesPage.tsx(5,19): error TS6133: 'useMyProfile' is declared but its value is never read.
