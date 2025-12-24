@@ -50,10 +50,11 @@ export const PostJobPage = () => {
 
   const { data: profile } = useMyProfile();
 
-  const handlePublish = () => {
-    // Determine if verified from profile (most fresh) or user (fallback)
-    const isVerified = profile?.is_verified ?? profile?.profile?.is_verified ?? user?.is_verified;
+  // Determine verification status
+  // We check profile first (fresh data), then nested profile (if needed), then fallback to user context
+  const isVerified = profile?.is_verified ?? profile?.profile?.is_verified ?? user?.is_verified;
 
+  const handlePublish = () => {
     if (!isVerified) {
       toast.error("You must verify your company before posting jobs.");
       return;
@@ -107,8 +108,6 @@ export const PostJobPage = () => {
       }
     });
   };
-
-  // const { data: profile } = useMyProfile(); // Removed duplicate
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -319,14 +318,14 @@ export const PostJobPage = () => {
             {/* Sticky Sidebar */}
             <div className="space-y-6">
               <Card className="sticky top-24 overflow-hidden">
-                {!user?.is_verified && (
+                {!isVerified && (
                     <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center">
                         <div className="h-14 w-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4">
                             <Lock className="h-7 w-7" />
                         </div>
                         <h4 className="font-bold text-slate-900 mb-2">Publishing Locked</h4>
                         <p className="text-xs text-slate-500 mb-6">Verify your company identity to start posting jobs.</p>
-                        <Link to="/dashboard/employer/settings" className="w-full">
+                        <Link to="/dashboard/employer/company-settings" className="w-full">
                             <Button className="w-full font-bold">Verify Now</Button>
                         </Link>
                     </div>
@@ -339,11 +338,11 @@ export const PostJobPage = () => {
                       size="lg"
                       onClick={handlePublish}
                       isLoading={createJob.isPending}
-                      disabled={!user?.is_verified}
+                      disabled={!isVerified}
                     >
                       Publish Job Now
                     </Button>
-                    <Button variant="outline" className="w-full font-bold" size="lg" disabled={!user?.is_verified}>Save as Draft</Button>
+                    <Button variant="outline" className="w-full font-bold" size="lg" disabled={!isVerified}>Save as Draft</Button>
                     <button className="w-full text-sm font-bold text-slate-400 py-2 hover:text-slate-600">Cancel</button>
                   </div>
                   

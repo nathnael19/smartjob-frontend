@@ -148,6 +148,8 @@ export const CompanySettingsPage = () => {
 
   // Derive display values
   const data = profile?.profile || profile || {};
+  const isVerified = data.is_verified ?? user?.is_verified;
+  const hasLegalDoc = data.legal_document_url ?? user?.legal_document_url;
   const companyName = formData.company || "Company";
   const profilePic = data.profile_picture_url || data.profile_picture || data.avatar_url;
 
@@ -176,29 +178,37 @@ export const CompanySettingsPage = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-bold text-slate-900">Verification Status</h3>
-                      {user?.is_verified ? (
+                      {isVerified ? (
                         <VerifiedBadge showText />
                       ) : (
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                          user?.legal_document_url 
+                          hasLegalDoc 
                             ? "bg-amber-100 text-amber-700" 
                             : "bg-slate-200 text-slate-600"
                         }`}>
-                          {user?.legal_document_url ? "Pending Approval" : "Required"}
+                          {hasLegalDoc ? "Pending Approval" : "Required"}
                         </span>
                       )}
                     </div>
                     <p className="text-sm text-slate-500 max-w-md">
-                      {user?.is_verified 
+                      {isVerified 
                         ? "Your company is verified. You have full access to premium recruiting features."
-                        : user?.legal_document_url
+                        : hasLegalDoc
                         ? "Documents under review. We'll notify you once the process is complete."
                         : "Verify your legal identity to build trust with candidates and unlock job posting."
                       }
                     </p>
                   </div>
                 </div>
-                {!user?.is_verified && !user?.legal_document_url && (
+                {isVerified ? (
+                   <Button className="font-bold whitespace-nowrap bg-green-100 text-green-700 hover:bg-green-100 border-green-200 shadow-none cursor-default" variant="outline" disabled>
+                      Verified
+                   </Button>
+                ) : hasLegalDoc ? (
+                   <Button className="font-bold whitespace-nowrap" variant="outline" disabled>
+                      Verification Pending
+                   </Button>
+                ) : (
                   <Button 
                     className="font-bold whitespace-nowrap" 
                     onClick={() => setIsVerificationOpen(true)}

@@ -24,6 +24,8 @@ export const CompanyProfilePage = () => {
    const companyName = company.company_name || company.company || user?.company || "Company";
    const activeJobs = myJobs?.filter((j: any) => j.status === 'open' || j.status === 'Active') || [];
  
+   const isVerified = company.is_verified ?? user?.is_verified;
+
    return (
      <div className="min-h-screen bg-slate-50">
        <DashboardNavbar />
@@ -50,7 +52,9 @@ export const CompanyProfilePage = () => {
                           <div>
                              <div className="flex items-center gap-3">
                                 <h1 className="text-4xl font-bold text-slate-900">{companyName}</h1>
-                                <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Verified</span>
+                                {isVerified && (
+                                  <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Verified</span>
+                                )}
                              </div>
                              <p className="text-lg text-slate-500 mt-1">{company.industry}</p>
                           </div>
